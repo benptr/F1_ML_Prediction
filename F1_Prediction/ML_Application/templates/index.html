@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+        .centrer
+        {
+            text-align: center;
+        }       
+
+        hr#bold
+        {
+            display: block;
+            height: 1px;
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 1em 5em 1em 5em;
+            background-color: rgb(121, 83, 13);
+        }
+
+        hr#inter
+        {
+            display: block;
+            height: 1px;
+            width: 2%;
+            border: 0;
+            padding: 0;
+            background-color: rgb(199, 197, 85);
+        }
+
+        hr#begins
+        {
+            display: block;
+            height: 1px;
+            width: 56%;
+            border: 0;
+            margin: 1em;
+            padding: 0;
+            background-color: rgba(0, 0, 0, 0.212);
+        }
+
+        .frame {
+            width: auto;
+            height: auto;
+            border: 3px solid #ccc;
+            background: #eee; 
+            margin: auto;
+            padding: 10px 20px;
+        }
+
+        html { 
+            background: url('https://images.assetsdelivery.com/thumbnails/roystudio/roystudio1509/roystudio150900201.jpg') no-repeat center center fixed; 
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        h1{
+            font-family:georgia:
+            font-size:40em;
+        }
+
+        .intropara{
+            font-family:calibri;
+            font-size:160%;
+            width: 75%;
+            margin-left: 8em;
+            padding: 8px;
+        }
+
+        .authors{
+            font-family:candara;
+            font-size:130%;
+            width: 70%;
+            margin-left: 196px;
+            padding: 15px;
+        }
+
+        a:link, a:visited {
+            background-color: rgba(240, 220, 164, 0.651);
+            color: black;
+            border: 2px solid black;
+            padding: 20px 40px;
+            margin: 50px 15px 0px 15px;
+            font-size: 130%;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        a:hover, a:active {
+            border: 4px solid black;
+            padding: 18px 38px;
+        }
+
+        input[type=submit]{
+            width:40px;
+            
+        }
+
+    </style>
+    <title>Analyse Foncière</title>
+</head>
+
+<body id="reportsPage">
+
+    <div id="intro">
+        <h1 class="centrer" style="font-family:georgia; font-size:3em; padding:25px;">Formula One data analysis and prediction</h1>
+        <p class="intropara"> This website is an overwiew of analysis and prediction of Formula one's data from the year {{year1}} until {{year2}}. It is a 1st year master's degree project.
+        <p class="authors"> <i>Authors : </i> Porterie Benjamin, Touitou Yves </p>
+    </div>
+  
+    <hr id="bold"/>
+        
+        <center>
+        <div class = "year">
+            <a href= "/SingleYear/?year=2020">Année individuelle</a>
+            <a href= "/MultipleYear/">Comparaison d'années</a>
+        </div>
+        </center>
+</body>
+
+</html>
