@@ -34,7 +34,7 @@ def Predictions(request):
         'year2' : year2,
 
     }
-    return render(request, 'index.html', context)
+    return render(request, 'Predictions.html', context)
 
 def Visualization(request):
     titre = "Formula One Data visualization and prediction"
