@@ -85,7 +85,7 @@ events = [
  (2021, 'Abu Dhabi Grand Prix')]
 
 years = zip(set([x[0] for x in events]),set([x[0] for x in events]))
-year = 2018
+year = 2020
 gpNames = [x[1] for x in events if x[0] == year]
 number = [x for x in range(1,1+len(gpNames))]
 gpNumber = zip(number,gpNames)

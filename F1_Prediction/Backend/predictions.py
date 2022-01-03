@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
 
-data = pd.read_csv('Backend/Datasets/allData.csv')
+data = None
 df = None
 
 def dataCreation(data):
@@ -57,12 +57,15 @@ def dataCreation(data):
     df_scaled2 = df_features2.copy()
     df_scaled2[to_scale] = scaler.fit_transform(df_scaled2[to_scale].to_numpy())
     df_scaled2 = pd.DataFrame(df_scaled2, columns= df_features2.columns)
+    df = df_scaled2
+    return df_scaled2
 
-def model_prevision_race(df,year,GpNumber):
+def model_prevision_race(year,GpNumber):
     X_train,y_train,X_test,y_test = test_train_creation_gp(df,year,GpNumber)
     random_forest = RandomForestRegressor(random_state = 47) 
     model_rd = random_forest.fit(X_train, y_train)
-    y_pred,acc = evaluaterankNoDisplay(random_forest, X_test, y_test)
+    y_pred_noRank,acc_NoRank = evaluateNoDisplay(model_rd, X_test,y_test)
+    y_pred,acc = evaluaterankNoDisplay( y_test, y_pred_noRank)
     return model_rd,y_pred,acc,X_test
 
 def timeStrToInt(df,columnName):
@@ -141,7 +144,7 @@ def test_train_creation_gp(df,year,gpNumber):
     y_test = test['position']
     return X_train,y_train,X_test,y_test
 
-def evaluateNoDisplay(model, test_features, test_labels,display=True):
+def evaluateNoDisplay(model, test_features, test_labels):
     y_pred = model.predict(test_features) 
     error = abs(y_pred - test_labels)
     return y_pred,error_calculationNoDisplay(error,test_labels)
@@ -169,8 +172,8 @@ def rank(y_pred):
     return y_pred_1
 
 def init_from_local():
-    global df
-    dataCreation(data)
-    print("init completed")
-    return df
+    global df,data
+    data = pd.read_csv('Backend/Datasets/allData.csv')
+    df = dataCreation(data)
+    return df,data
         

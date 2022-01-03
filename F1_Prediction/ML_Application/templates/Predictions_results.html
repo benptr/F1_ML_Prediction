@@ -133,12 +133,15 @@
 
         <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Year selected {{year}} -</h3>
         <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Grand Prix selected {{grandPrix}} -</h3>
-
+        <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Year selected {{y_pred}} -</h3>
         <ul>
-            {% for i in y_pred %}
-                <li style="margin-bottom: 16px"> {{i|safe}} </li>
-            {% endfor %}
+        {% for i in y_pred %}
+            <li style="margin-bottom: 16px"> {{i|safe}} </li>
+        {% endfor %}
         </ul>
+    
+            <p>Pas de graphique disponible</p>
+        {% endif %}
         {% if graph %}
             <ul>
             {% for graphique in graph %}
