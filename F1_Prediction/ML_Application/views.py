@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import loader
-import Backend.Viz as viz
-
+#from Backend import Viz
+from Backend import predictions
+from .forms import *
 # Create your views here.
 
 def index(request):
@@ -27,12 +28,12 @@ def Predictions(request):
     year1 = years[0]
     year2 = years[-1]
 
-
+    form = EventForm(request.POST)
     context = {
         'titre' : titre,
         'year1' : year1,
         'year2' : year2,
-
+        'form': EventForm(),
     }
     return render(request, 'Predictions.html', context)
 

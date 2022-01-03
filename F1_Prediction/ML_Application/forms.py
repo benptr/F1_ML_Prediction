@@ -86,4 +86,4 @@ events = [
 
 class EventForm(Form):
     year = forms.ChoiceField(choices = list(set(list(zip(*events))[0])))
-    gpName = forms.ChoiceField(choices = [x[1] for x in events if x[0] == year])
+    gpName = forms.ChoiceField(choices = [x[1] for x in events if x[0] == 2018])
