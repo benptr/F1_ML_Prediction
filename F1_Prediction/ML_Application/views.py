@@ -33,7 +33,8 @@ def Predictions(request):
         'titre' : titre,
         'year1' : year1,
         'year2' : year2,
-        'form': EventForm(),
+        'form1': EventForm(),
+        'form': YearForm()
     }
     return render(request, 'Predictions.html', context)
 

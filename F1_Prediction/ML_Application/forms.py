@@ -84,8 +84,13 @@ events = [
  (2021, 'Saudi Arabian Grand Prix'),
  (2021, 'Abu Dhabi Grand Prix')]
 
+year = list(set(list(zip(events))[0]))
+
 class EventForm(Form):
-    year = forms.ChoiceField(choices = list(set(list(zip(*events))[0])))
 
     gpNames = [x[1] for x in events if x[0] == year]
     grandPrix = forms.ChoiceField(choices = list(zip(gpNames, [i+1 for i in range(len(gpNames))])))
+
+class YearForm(Form):
+     year = forms.ChoiceField(choices = year)
+
