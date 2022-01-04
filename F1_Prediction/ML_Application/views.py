@@ -56,6 +56,7 @@ def Predictions(request):
     pred.init_from_local()
     model_rd,y_pred,acc,X_test = [],[],[],[]
     try:
+        
         model_rd,y_pred,acc,X_test = pred.model_prevision_race(int(year),int(grandPrix))
 
         results = pd.DataFrame(columns=['Position','Prediction'])
@@ -64,7 +65,7 @@ def Predictions(request):
         results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,21)]]
         results['Driver'] = pred.data_driver(X_test)
         results = results.to_html()
-        #name = pred.get_name(X_test)
+        name = pred.get_name(X_test)
         X_test = X_test.to_html()
     except:
         model_rd,y_pred,acc,X_test = [],['Grand prix number not valid'],[],[]
