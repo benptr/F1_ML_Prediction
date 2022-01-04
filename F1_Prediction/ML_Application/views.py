@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import loader
-#from Backend import Viz
+from Backend import Viz as viz
 from Backend import predictions as pred
+from F1_Prediction.Backend.Viz import QualiRaceRelation, RetrieveSession
 from .forms import *
 import logging
 import pandas as pd 
@@ -89,15 +90,50 @@ def Predictions(request):
 
 def Visualization(request):
     titre = "Formula One Data visualization and prediction"
-    years =[i for i in range(2018,2022)]
+    years = [i for i in range(2018,2022)]
     year1 = years[0]
     year2 = years[-1]
+    yearDefined = 2019
+    gpNumberDefined = 2
+    driver1Defined = 'LEC'
+    driver2Defined = 'HAM'
 
+    dfAll,races,driversCauses,dictTeamColors = viz.init_viz()
+
+    graph = [
+        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P1')),
+        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P2')),
+        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P3')),
+        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'Q')),
+        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'R')),
+
+        viz.SeasonRankings(yearDefined, True),
+        viz.SeasonRankings(yearDefined, False),
+
+        viz.QualiRaceRelation(yearDefined, True),
+        viz.QualiRaceRelation(yearDefined, False),
+        
+        viz.DNFCounter(yearDefined, False, False),
+        viz.DNFCounter(yearDefined, True, False),
+
+        viz.ConstructorsForm(year1, year2),
+
+        viz.DriversQualiComparison(yearDefined, gpNumberDefined, driver1Defined, driver2Defined),
+
+        viz.RacePaceComparison(yearDefined, gpNumberDefined, driver1Defined, driver2Defined)
+    ]
 
     context = {
         'titre' : titre,
         'year1' : year1,
         'year2' : year2,
+        'yearDefined' : yearDefined,
+        'gpNumberDefined' : gpNumberDefined,
+        'driver1Defined' : driver1Defined,
+        'driver2Defined' : driver2Defined,
+        'graph' : graph
 
     }
+
+
     return render(request, 'index.html', context)

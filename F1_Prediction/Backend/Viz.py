@@ -18,25 +18,33 @@ from matplotlib.pyplot import figure
 from matplotlib.ticker import FormatStrFormatter
 
 
+df = None
+races = None
+driversCauses = None
+teamList = None
+teamColors = None
+dictTeamColors = None
+
 print(matplotlib.__version__, "matplotlib version // need to be higher than 3.4")
 
+def init_viz():
+    global df, races, driversCauses, teamList, teamColors, dictTeamColors
 
-#---> Data management
-df = pd.read_csv("Backend/Datasets/allData.csv")
+    #---> Data management
+    df = pd.read_csv("Backend/Datasets/allData.csv")
 
-races = df[df["sessionName"] == "Race"]
+    races = df[df["sessionName"] == "Race"]
 
-driversCauses = ['Collision', 'Accident', 'Collision damage', 'Puncture', 'Disqualified', 'Withdrew', 'Spun off', 'Damage', 'Debris', 'Tyre', 'Out of fuel']
+    driversCauses = ['Collision', 'Accident', 'Collision damage', 'Puncture', 'Disqualified', 'Withdrew', 'Spun off', 'Damage', 'Debris', 'Tyre', 'Out of fuel']
 
+    #---> Team colors mapping for plots
+    #teamColors = ['alfa romeo': '#900000', 'alphatauri': '#2b4562', 'alpine': '#0090ff', 'aston martin': '#006f62', 'ferrari': '#dc0000', 'force_india': '#F596C8', 'haas': '#ffffff', 'mclaren': '#ff8700', 'mercedes': '#00d2be', 'racing_point': '#F596C8', 'red bull': '#0600ef', 'renault': '#FFF500', 'sauber' : '#9B0000', 'toro_rosso': '#0032FF', 'williams': '#005aff']
+    teamList = df['constructorId'].unique().tolist()
+    teamList.sort()
+    teamColors = ['#900000', '#2b4562', '#0090ff', '#006f62', '#dc0000', '#F596C8', '#fdfdfd', '#ff8700', '#00d2be', '#F596C8', '#0600ef', '#FFF500', '#9B0000', '#0032FF', '#005aff']
+    dictTeamColors = dict(zip(teamList, teamColors))
 
-
-
-#---> Team colors mapping for plots
-#teamColors = ['alfa romeo': '#900000', 'alphatauri': '#2b4562', 'alpine': '#0090ff', 'aston martin': '#006f62', 'ferrari': '#dc0000', 'force_india': '#F596C8', 'haas': '#ffffff', 'mclaren': '#ff8700', 'mercedes': '#00d2be', 'racing_point': '#F596C8', 'red bull': '#0600ef', 'renault': '#FFF500', 'sauber' : '#9B0000', 'toro_rosso': '#0032FF', 'williams': '#005aff']
-teamList = df['constructorId'].unique().tolist()
-teamList.sort()
-teamColors = ['#900000', '#2b4562', '#0090ff', '#006f62', '#dc0000', '#F596C8', '#fdfdfd', '#ff8700', '#00d2be', '#F596C8', '#0600ef', '#FFF500', '#9B0000', '#0032FF', '#005aff']
-dictTeamColors = dict(zip(teamList, teamColors))
+    return df,races,driversCauses,dictTeamColors
 
 #---> Session retrieval with regex help
 #Checks first if number in [1,2,3] exists (--> Practice x), then searches for a "q" (--> Qualification)
@@ -297,6 +305,35 @@ def SeasonRankings(year, constructors):
     plt.suptitle(title, y = 0.95, fontsize=16)
     plt.show()
 
+
+#DNF is False if you want to display statistics without weekends when the race ended up with a DNF
+def QualiRaceRelation(year, DNF):
+    if (DNF):
+        QRrelation = races[(races["year"] == year) & (races['positionText'] != 'R')].groupby('code')[['grid', 'position']].mean()
+    else:
+        QRrelation = races[races["year"] == year].groupby('code')[['grid', 'position']].mean()
+    QRrelation = QRrelation.sort_values(['grid'])
+    QRrelation["racecraftEdge"] = QRrelation["grid"] - QRrelation["position"]
+    
+    indices = np.arange(QRrelation.shape[0])
+
+    width = 0.30
+
+    plt.bar(indices, QRrelation['grid'], width = width)
+
+    plt.bar(indices + width, QRrelation['position'], width = width)
+
+    plt.xticks(ticks = indices, labels = QRrelation.index)
+
+    plt.gca().legend(('grid position','race result'), fontsize = 12)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 12)
+    
+    title = f"Grid position/Race result\n{year} F1 season"
+    if (DNF):
+        title += " excluding weekends where DNFs occurred for drivers"
+    plt.suptitle(title, y = 0.95, fontsize=16)
+    plt.show()
 
 
 #driversRelated is True if wanting to display DNFs related to the driver
