@@ -115,13 +115,13 @@
 
     <div class="" id="home">
         <center>
-        <form action="/Predictions/?year={{year}}" method="post">
+        <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
             {% csrf_token %}
             {{ form }}
             <input type="submit" value="✓" style="margin: 10px 0px 20px 0px;">
         </form>
 
-        <form action="/Predictions/?year={{year}}&?grandPrix={{grandPrix}}" method="post">
+        <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
             {% csrf_token %}
             {{ form1 }}
             <input type="submit" value="✓" style="margin: 20px 0px 20px 0px;">
@@ -132,13 +132,19 @@
 
 
         <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Year selected {{year}} -</h3>
-        <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Grand Prix selected {{grandPrix}} -</h3>
+        <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Grand Prix selected {{name}} number :{{grandPrix}} -</h3>
 
+        
         <ul>
+
             {% for i in y_pred %}
-                <li style="margin-bottom: 16px"> {{i|safe}} </li>
+                <li style="margin-bottom: 16px"> {{i|safe}}{{y_test|safe}} </li>
             {% endfor %}
+            <li style="margin-bottom: 16px"> {{X_test|safe}} </li>
         </ul>
+        <ul style="margin-bottom: 16px"> {{results|safe}} </ul>
+        <p2 style=" margin-top:16px;">-  Model specifications  -</p2>
+        <p2 style=" margin-top:16px;">-  {{model_rd}} {{model_params }}  -</p2>
         {% if graph %}
             <ul>
             {% for graphique in graph %}

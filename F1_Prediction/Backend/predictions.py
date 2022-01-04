@@ -171,6 +171,13 @@ def rank(y_pred):
                 y_pred_1[i] = j+1
     return y_pred_1
 
+def data_driver(X_test):
+    driver = data['driverId'].iloc[X_test.index[0]:X_test.index[19]]
+    return driver
+
+def get_name(X_test):
+    name = data['gpName'].iloc[X_test.index[0]]
+    return name
 def init_from_local():
     global df,data
     data = pd.read_csv('Backend/Datasets/allData.csv')

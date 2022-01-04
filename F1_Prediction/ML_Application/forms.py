@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import Form
 
+
 events = [
  (2018, 'Australian Grand Prix'),
  (2018, 'Bahrain Grand Prix'),
@@ -85,15 +86,31 @@ events = [
  (2021, 'Abu Dhabi Grand Prix')]
 
 years = zip(set([x[0] for x in events]),set([x[0] for x in events]))
-year = 2020
-gpNames = [x[1] for x in events if x[0] == year]
-number = [x for x in range(1,1+len(gpNames))]
-gpNumber = zip(number,gpNames)
+year1 = int
+def update_year(year_ = 2020,*args, **kwargs):
+    global year1
+    year1= year_
+    return year_
 
-class EventForm(Form):
-    grandPrix = forms.ChoiceField(choices = gpNumber)
+year1 = update_year()
+
+def GPname_calculation(year):
+        gpNames = [x[1] for x in events if x[0] == year]
+        number = [x for x in range(1,1+22)]
+        gpNumber = zip(number,number) 
+        return gpNumber
+
+
 
 class YearForm(Form):
     year = forms.ChoiceField(choices = years)
+      
+class EventForm(Form):
+    
+    grandPrix = forms.ChoiceField(choices = GPname_calculation(year1))
+    
 
+
+  
+    
 
