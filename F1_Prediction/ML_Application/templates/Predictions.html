@@ -131,18 +131,13 @@
 
 
 
-        <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Year selected {{year}} -</h3>
-        <h3 style="font-family:optima; font-size:1.8em; margin-top:50px;">- Grand Prix selected {{name}} number :{{grandPrix}} -</h3>
+        <h3 style="font-family:optima; font-size:1.8em; margin-top:30px;">- Year selected {{year}} -</h3>
+        <h3 style="font-family:optima; font-size:1.8em; margin-top:30px;">- Grand Prix selected {{name}} :{{grandPrix}} -</h3>
 
         
-        <ul>
 
-            {% for i in y_pred %}
-                <li style="margin-bottom: 16px"> {{i|safe}}{{y_test|safe}} </li>
-            {% endfor %}
-            <li style="margin-bottom: 16px"> {{X_test|safe}} </li>
-        </ul>
         <ul style="margin-bottom: 16px"> {{results|safe}} </ul>
+
         <p2 style=" margin-top:16px;">-  Model specifications  -</p2>
         <p2 style=" margin-top:16px;">-  {{model_rd}} {{model_params }}  -</p2>
         {% if graph %}

@@ -53,21 +53,30 @@ def Predictions(request):
 
 
     pred.init_from_local()
-    model_rd,y_pred,acc,X_test = [],[],[],[]
+    name = ''
+    model_rd,y_pred,acc,X_test,X_train,param,results = [],[],[],[],[],[],[]
     try:
         
-        model_rd,y_pred,acc,X_test = pred.model_prevision_race(int(year),int(grandPrix))
+        model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_race(int(year),int(grandPrix))
 
         results = pd.DataFrame(columns=['Position','Prediction'])
-        results['Position'] =[i for i in range(1,21)]
         results['Prediction'] =y_pred
-        results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,21)]]
+        if len(y_pred) == 20 :
+            results['Position'] =[i for i in range(1,21)]
+            results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,21)]]
+            results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,21)]]
+        else:
+            results['Position'] =[i for i in range(1,20)]
+            results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,20)]]
+            results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
         results['Driver'] = pred.data_driver(X_test)
         results = results.to_html()
         name = pred.get_name(X_test)
         X_test = X_test.to_html()
+        X_train = X_train.to_html()
+        param = model_rd.get_params()
     except:
-        model_rd,y_pred,acc,X_test = [],['Grand prix number not valid'],[],[]
+        model_rd,y_pred,acc,X_test,X_train,param = ['Grand prix number not valid'],['Grand prix number not valid'],['Grand prix number not valid'],['Grand prix number not valid'],['Grand prix number not valid'],['']
     context = {
         'title' : title,
         'year': year,
@@ -78,11 +87,12 @@ def Predictions(request):
         'grandPrix': grandPrix,
         'y_pred': y_pred,
         'model_rd': model_rd,
-        'model_params': model_rd.get_params(),
+        'model_params': param,
         'X_test' : X_test,
         'y_test' : [i for i in range(1,21)],
         'results': results,
-        'name':name
+        'name':name,
+        'X_train':X_train
 
 
     }

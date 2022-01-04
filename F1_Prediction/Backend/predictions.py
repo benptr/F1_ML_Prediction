@@ -68,7 +68,7 @@ def model_prevision_race(year,GpNumber):
     model_rd = random_forest.fit(X_train, y_train)
     y_pred_noRank,acc_NoRank = evaluateNoDisplay(model_rd, X_test,y_test)
     y_pred,acc = evaluaterankNoDisplay( y_test, y_pred_noRank)
-    return model_rd,y_pred,acc,X_test
+    return model_rd,y_pred,acc,X_test,X_train
 
 def timeStrToInt(df,columnName):
     l = []
@@ -123,19 +123,19 @@ def timeStrToIntQ2_3(df, Q_number):
             l.append(df[c_name].iloc[i])
     df[Q] = l
 
-def which_gp(gpNumber,year,df):
+def which_gp(gpNumber,year,df_):
     if gpNumber != 1:
-        idx = df[(df['gpNumber']==gpNumber) & (df['year']==year)].index[0]
-        idx_begin = df[df['year']==year].index[0]
+        idx = df_[(df_['gpNumber']==gpNumber) & (df_['year']==year)].index[0]
+        idx_begin = df_[df_['year']==year].index[0]
         idx_end = idx+20
-        train = df.iloc[idx_begin:idx]
-        test = df.iloc[idx:idx_end]
+        train = df_.iloc[idx_begin:idx]
+        test = df_.iloc[idx:idx_end]
     else:
-        idx = df[(df['gpNumber']==gpNumber) & (df['year']==year)].index[0]
-        idx_begin = df[df['year']==(year-1)].index[0]
+        idx = df_[(df_['gpNumber']==gpNumber) & (df_['year']==year)].index[0]
+        idx_begin = df_[df_['year']==(year-1)].index[0]
         idx_end = idx+20
-        train = df.iloc[idx_begin:idx]
-        test = df.iloc[idx:idx_end]
+        train = df_.iloc[idx_begin:idx]
+        test = df_.iloc[idx:idx_end]
     return train,test
 
 def test_train_creation_gp(df,year,gpNumber):
@@ -174,11 +174,11 @@ def rank(y_pred):
     return y_pred_1
 
 def data_driver(X_test):
-    driver = data_complete['driverId'].iloc[(X_test.index[0]-20):X_test.index[0]]
+    driver = data_complete['driverId'].iloc[(X_test.index[0]):X_test.index[0]+20]
     return list(driver)
 
 def get_name(X_test):
-    name = data_complete['gpName'].iloc[(X_test.index[0]-20)]
+    name = data_complete['gpName'].iloc[(X_test.index[0])]
     return name
 def init_from_local():
     global df,data
