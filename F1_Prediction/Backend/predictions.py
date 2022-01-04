@@ -8,8 +8,9 @@ from sklearn.ensemble import RandomForestRegressor
 
 data = None
 df = None
-
+data_complete = None
 def dataCreation(data):
+    global df
     df_race = data[data['sessionName'] == 'Race']
 
     df_practice1 = data[data['sessionName'] == 'Practice 1'][['fastestLapRank','fastestLapTime','year','gpName','driverId']]
@@ -28,6 +29,7 @@ def dataCreation(data):
     race_quali = pd.merge(df_race, df_quali, how="left", on=['year','gpName','driverId'])
     race_quali_1 = pd.merge(race_quali, df_practice1, how="left", on=['year','gpName','driverId'])
     race_quali_12 = pd.merge(race_quali_1, df_practice2, how="left", on=['year','gpName','driverId'])
+    global data_complete
     data_complete = pd.merge(race_quali_12, df_practice3, how="left", on=['year','gpName','driverId'])
     df_pred_postion = data_complete.drop(['positionText','points','laps','status','fastestLapNumber', 'fastestLapRank', 'fastestLapAvgSpeed',
         'fastestLapTime', 'totalTime', 'TimeInterval','code','driverId','sessionName'], axis=1)
@@ -172,11 +174,11 @@ def rank(y_pred):
     return y_pred_1
 
 def data_driver(X_test):
-    driver = data['driverId'].iloc[X_test.index[0]:X_test.index[19]]
-    return driver
+    driver = data_complete['driverId'].iloc[(X_test.index[0]-20):X_test.index[0]]
+    return list(driver)
 
 def get_name(X_test):
-    name = data['gpName'].iloc[X_test.index[0]]
+    name = data_complete['gpName'].iloc[(X_test.index[0]-20)]
     return name
 def init_from_local():
     global df,data
