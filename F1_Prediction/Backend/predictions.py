@@ -182,7 +182,7 @@ def get_name(X_test):
     return name
 def init_from_local():
     global df,data
-    data = pd.read_csv('Backend/Datasets/allData.csv')
+    data = pd.read_csv(r'..\Data\allData.csv')
     df = dataCreation(data)
     return df,data
         
