@@ -4,7 +4,6 @@ from django.http import HttpResponseRedirect
 from django.template import loader
 from Backend import Viz as viz
 from Backend import predictions as pred
-from F1_Prediction.Backend.Viz import QualiRaceRelation, RetrieveSession
 from .forms import *
 import logging
 import pandas as pd 
@@ -94,26 +93,28 @@ def Visualization(request):
     years = [i for i in range(2018,2022)]
     year1 = years[0]
     year2 = years[-1]
-    yearDefined = 2019
-    gpNumberDefined = 2
-    driver1Defined = 'LEC'
-    driver2Defined = 'HAM'
+    yearDefined = 2021
+    gpNumberDefined = 1
+    driver1Defined = 'NOR'
+    driver2Defined = 'SAI'
 
     dfAll,races,driversCauses,dictTeamColors = viz.init_viz()
 
     graph = [
-        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P1')),
-        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P2')),
-        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'P3')),
-        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'Q')),
-        viz.RankingDisplay(RetrieveSession(yearDefined, gpNumberDefined, 'R')),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P1')),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P2')),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P3')),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 1),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 2),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 3),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'R')),
 
         viz.SeasonRankings(yearDefined, True),
         viz.SeasonRankings(yearDefined, False),
 
         viz.QualiRaceRelation(yearDefined, True),
         viz.QualiRaceRelation(yearDefined, False),
-        
+
         viz.DNFCounter(yearDefined, False, False),
         viz.DNFCounter(yearDefined, True, False),
 

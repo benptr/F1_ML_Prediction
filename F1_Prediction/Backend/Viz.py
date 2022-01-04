@@ -30,6 +30,8 @@ print(matplotlib.__version__, "matplotlib version // need to be higher than 3.4"
 def init_viz():
     global df, races, driversCauses, teamList, teamColors, dictTeamColors
 
+    fastf1.Cache.enable_cache(r'..\Data\Cache')
+
     #---> Data management
     df = pd.read_csv("Backend/Datasets/allData.csv")
 
@@ -308,6 +310,7 @@ def SeasonRankings(year, constructors):
 
 #DNF is False if you want to display statistics without weekends when the race ended up with a DNF
 def QualiRaceRelation(year, DNF):
+    
     if (DNF):
         QRrelation = races[(races["year"] == year) & (races['positionText'] != 'R')].groupby('code')[['grid', 'position']].mean()
     else:
