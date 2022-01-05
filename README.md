@@ -46,8 +46,7 @@ Our prediction model has approximately a :
 - 13.8% absolute accuracy
 - 32.6% "-/+ 1 position" estimation accuracy
 - 48.4% "-/+ 2 position" estimation accuracy
-<br/>
 This is better than 5% which is the absolute random estimation mean accuracy.  
 It's not necessarily a low percentage considering F1 is a motorsport, and various events can completely modify races finishing order.  
-Our prediction model is more precise when predicting podium than the midfield or rear of the pack.
+Our prediction model is more precise when predicting podium than the midfield or rear of the pack.  
 Our prediction model is more precise as we make progress into the season, it can lean on previous races from the same season.
