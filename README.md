@@ -1,6 +1,7 @@
 # F1_ML_Prediction
 Formula one data analysis and prediction using machine learning techniques and FastF1 framework.
-
+Authors : Touitou Yves, Benjamin Porterie
+<br/>
 
 ## Website opening procedure
 Make sure you own all required packages/libraries to launch the project thanks to requirements.txt : "pip install -r requirements.txt"
