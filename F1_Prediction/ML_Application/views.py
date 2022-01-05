@@ -59,7 +59,7 @@ def Predictions(request):
     model_rd,y_pred,acc,X_test,X_train,param,results = [],[],[],[],[],[],[]
     try:
         
-        model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_race(int(year),int(grandPrix))
+        model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_raceV2(int(year),int(grandPrix),17)
 
         results = pd.DataFrame(columns=['Position','Prediction'])
         results['Prediction'] =y_pred
@@ -67,10 +67,12 @@ def Predictions(request):
             results['Position'] =[i for i in range(1,21)]
             results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,21)]]
             results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,21)]]
+            results['Correct_Interval_2'] = ['yes' if (((x-2) == y_pred[x-1]) |((x+2) == y_pred[x-1])|(x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,21)]]
         else:
             results['Position'] =[i for i in range(1,20)]
             results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,20)]]
             results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
+            results['Correct_Interval_2'] = ['yes' if (((x-2) == y_pred[x-1]) |((x+2) == y_pred[x-1])|(x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
         results['Driver'] = pred.data_driver(X_test)
         results = results.to_html()
         name = pred.get_name(X_test)
