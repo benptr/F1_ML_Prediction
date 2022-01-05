@@ -18,7 +18,7 @@
             border: 0;
             border-top: 1px solid #ccc;
             margin: 1em 5em 1em 5em;
-            background-color: rgb(0,0,0);
+            background-color: rgb(121, 83, 13);
         }
 
         hr#inter
@@ -28,7 +28,7 @@
             width: 2%;
             border: 0;
             padding: 0;
-            background-color: rgb(0,0,0);
+            background-color: rgb(199, 197, 85);
         }
 
         hr#begins
@@ -51,7 +51,7 @@
             padding: 10px 20px;
         }
 
-        body { 
+        html { 
             background: url("https://blogger.googleusercontent.com/img/a/AVvXsEgDUC1t_ttGgGSr-oOQxCoX_TnVQtEfK521Cx3kyFN6Mx1yBePYPrZBUiWk5APCsYgp0QVmXFKjMcCnMuBfzmySfDBbOkOZ9iHZ3dhOqA6x3PQZTpl9nOywvHsJ7HU1-OypiiQHTNgNldOoYLvI-NmuytNK1gjo_jD43WuxMYC47TB_ZBABaAdN4hPpZQ=s997") no-repeat center center fixed; 
             -webkit-background-size: cover;
             -moz-background-size: cover;
@@ -81,12 +81,11 @@
         }
 
         a:link, a:visited {
-            background-color: rgba(255, 255, 255, 1);
+            background-color: rgba(255, 255, 255, 0.651);
             color: black;
             border: 2px solid black;
-            padding: 20px 40px;
-            margin: 50px 15px 0px 15px;
-            font-size: 130%;
+            padding: 10px 20px;
+            margin: 5px 8px 0px 8px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
@@ -94,7 +93,7 @@
 
         a:hover, a:active {
             border: 4px solid black;
-            padding: 18px 38px;
+            padding: 8px 18px;
         }
 
         input[type=submit]{
@@ -103,27 +102,37 @@
         }
 
     </style>
-    <title>F1 Analysis</title>
+    <title>Model Specifications</title>
 </head>
 
 <body id="reportsPage">
-
+    <a href= "/" style="font-weight: bold; color: black;"> ⇐ </a>
     <div id="intro">
-        <h1 class="centrer" style="font-family:georgia; font-size:3em; padding:25px;">Formula One data analysis and prediction</h1>
-        <p class="intropara"> This website is an overwiew of analysis and prediction of Formula one's data from the year {{year1}} until {{year2}}. It is a 1st year master's degree project.
-        <p class="authors"> <i>Authors : </i> Porterie Benjamin, Touitou Yves </p>
+        <h1 class="centrer" style="font-family:georgia; font-size:2.3em; margin: 0px 0px 45px 0px;">Model Specifications</h1>
     </div>
   
     <hr id="bold"/>
-    <center>
-    <p style="font-size:1.4em;" > Note : Visualization and Model Specifications can take up to 30 seconds to load. </p>
+
+    <div class="" id="home">
+        <center>
+
+        <hr/ id="begins">
         
-        <div class = "year">
-            <a href= "/Predictions/?year=2020&?grandPrix=3">Predictions</a>
-            <a href= "/Visualization/">Visualization</a>
-            <a href= "/ModelSpe/">Model specifications</a>
+        <div>
+            <h2> This page shows our Model Specifications. </h2>
+            <h4> For all the data. </h4>
         </div>
-    </center>
+
+        {% if graph %}
+            {% for graphique in graph %}
+                <li style="margin-bottom: 16px"> {{ graphique | safe }} </li>
+            {% endfor %}
+        {% else %}
+            <p>No graphique available</p>
+        {% endif %}
+        </center>
+    </div>
+
 </body>
 
 </html>

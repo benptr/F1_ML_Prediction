@@ -6,6 +6,9 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
 from scipy.interpolate import make_interp_spline
+import plotly.express as px
+import plotly.graph_objects as go
+
 data = None
 df = None
 data_complete = None
@@ -218,16 +221,72 @@ def data_driver(X_test):
 def get_name(X_test):
     name = data_complete['gpName'].iloc[(X_test.index[0])]
     return name
+def interval_acc(reg_scaled,interval):
+    sum_rank = 0
+    for i in reg_scaled:
+        t = i[4]
+        c = 0
+        if len(t) == 20 :
+            for pos in range(0,20):
+                for j in range(0,(interval+1)):
+                    if ((1+pos+j)==t[0][pos])|((1+pos-j)==t[0][pos]):
+                        c+=1
+                        break
+            sum_rank+=((c/20)*100)
+        else : 
+            for pos in range(0,19):
+                for j in range(0,(interval+1)):
+                    if ((1+pos+j)==t[0][pos])|((1+pos-j)==t[0][pos]):
+                        c+=1
+                        break
+            sum_rank+=((c/19)*100)
+    return sum_rank/len(reg_scaled)
+def position_acc(reg_scaled,position):
+    sum_rank = 0
+    for i in reg_scaled:
+        t = i[4]
+        c = 0  
+        if t != reg_scaled[-1][4] :
+            if (position==t[0][position-1]):
+                c+=1
 
-    
-def test_deepness_Unique(n,df):
-    print('Results for ',n,'gp considered')
+            sum_rank+=c
+        else : 
+            position -=1
+            if (position==round(t[0][position-1])):
+                c=c
+
+            sum_rank+=c
+    return (sum_rank/len(reg_scaled))*100
+def evolution_acc(reg_scaled,gpNumber):
+    sum_y = 0
+    for y in [2018,2019,2020,2021]:
+        sum_rank = 0
+        gpn =0
+        for i in reg_scaled:
+            if (i[0][0] == y)&(i[0][1]<=gpNumber):
+                t = i[4]
+                c = 0
+                gpn+=1
+                if len(t) == 20 :
+                    for pos in range(0,20):
+                        if (1+pos)==t[0][pos]:
+                            c+=1
+                    sum_rank+=((c/20)*100)
+                else:
+                    for pos in range(0,19):
+                        if (1+pos)==round(t[0][pos]):
+                            c+=1
+                    sum_rank+=((c/19)*100)
+        if gpn!=0:
+            sum_y+=sum_rank/gpn
+    return sum_y/4
+def test_deepness_Unique(n):
+
     year = [2018,2019,2020,2021]
     GpNumber = [i for i in range(1,23)]
     reg_scaled=[]
-    interval_acc=[]
-    position_acc=[]
-    evolution_acc = []
+
     for y in year:
         for g in GpNumber:
             try:
@@ -247,53 +306,59 @@ def test_deepness_Unique(n,df):
                 reg_scaled.append(l)
             except:
                 error = 0
-    
+
+    figures = []
     intervals = [interval_acc(reg_scaled,x) for x in range(15)]
     x = [x for x in range(15)]
-    fig, ax = plt.subplots(figsize = (10,7))
-    ax.scatter(x, intervals)
-    for i, txt in enumerate([round(j,2) for j in intervals]):
-        ax.annotate(txt, (x[i], (intervals[i]-4)))
-    ax.plot([x for x in range(15)], intervals)
-    ax.set_title('Accuracy in fonction of the position Interval')
-    ax.set_ylabel('Mean accuracy in %')
-    ax.set_xlabel('position Interval')
-    plt.grid(axis='x', color='0.8')
-    ax.set_facecolor('seashell')
-    plt.tight_layout();
-    
-    positions_acc = [position_acc(reg_scaled,x) for x in range(1,21)]
+    a = pd.DataFrame(x, columns = ['position Interval'])
+    a['Mean accuracy in %'] = intervals
+    a['Accuracy'] = [round(j,2) for j in intervals]
+    a['c'] = ["Performance" for x in range(15)]
+    fig = px.line(  a,x='position Interval', y='Mean accuracy in %', text='Accuracy',template = 'plotly_dark',color = 'c',color_discrete_sequence = ['darkred'])
+    fig.update_traces(textposition='top center')
+    fig.update_layout(title = "Accuracy in fonction of the position Interval")
+    figures.append(fig.to_html(full_html = False))
+
     x = [x for x in range(1,21)]
-    fig, ax = plt.subplots(figsize = (10,7))
-    ax.bar(x, positions_acc)
-    for i, txt in enumerate([round(j,2) for j in positions_acc]):
-        ax.annotate(txt, ((x[i]-0.5), (positions_acc[i]+0.5)))
-    ax.set_title('Accuracy in fonction of the position')
-    ax.set_ylabel('Mean accuracy in %')
-    ax.set_xlabel('position')
-    plt.grid(axis='x', color='0.8')
-    ax.set_facecolor('seashell')
-    plt.tight_layout();
+    positions_acc = [position_acc(reg_scaled,x) for x in range(1,21)]
+    a = pd.DataFrame(x, columns = ['position'])
+    a['Mean accuracy in %'] = positions_acc
+    a['Accuracy'] = [round(j,2) for j in positions_acc]
+    a['c'] = ["Performance" for x in range(1,21)]
+
+    fig = px.bar(  a,x='position', y='Mean accuracy in %', text='Accuracy',template = 'plotly_dark',color = 'c',color_discrete_sequence = ['darkred'])
+    fig.update_layout(title = "Accuracy in fonction of the position")
+    figures.append(fig.to_html(full_html = False))
+
     evolutions = [evolution_acc(reg_scaled,x) for x in range(1,23)]
     x = np.array([x for x in range(1,23)])
-
-
     X_Y_Spline = make_interp_spline(x, evolutions)
+
     X_ = np.linspace(x.min(), x.max(), 500)
     Y_ = X_Y_Spline(X_)
 
-    fig, ax = plt.subplots(figsize = (10,7))
-    ax.scatter(x, evolutions)
-    for i, txt in enumerate([round(j,2) for j in evolutions]):
-        ax.annotate(txt, ((x[i]-0.4), (evolutions[i]+0.08)))
-    ax.plot(X_, Y_)
-    ax.set_title('Accuracy evolution during the season')
-    ax.set_ylabel('Mean accuracy in %')
-    ax.set_xlabel('Grand Prix Number')
-    plt.grid(axis='x', color='0.8')
-    ax.set_facecolor('seashell')
-    plt.tight_layout();
+    a = pd.DataFrame(X_, columns = ['X_'])
+    #a['Mean accuracy in %'] = evolutions
+    acc_ = [round(j,2) for j in evolutions]
+    acc= []
+    ca = 0
+    for i in range(500):
+        if i%23 == 0 & i!= 500:
+            
+            acc.append(acc_[ca])
+            ca+=1
+        else:
+            acc.append(None)
+    a['c'] = ["Performance" for x in range(500)]
+    a['Grand Prix Number'] = X_
+    a['Mean accuracy in %'] = Y_
+    a['Accuracy'] = acc
+    fig = px.line(  a,x='Grand Prix Number', y='Mean accuracy in %',template = 'plotly_dark',text='Accuracy',color = 'c',color_discrete_sequence = ['darkred'])
+    fig.update_traces(textposition='middle center')
+    fig.update_layout(title = "Accuracy evolution during the season")
+    figures.append(fig.to_html(full_html = False))
 
+    return figures 
 
 def init_from_local():
     global df,data

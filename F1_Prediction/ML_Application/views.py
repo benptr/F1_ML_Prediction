@@ -28,6 +28,21 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
+def ModelSpe(request):
+    titre = "Formula One Data visualization and prediction"
+    years =[i for i in range(2018,2022)]
+    year1 = years[0]
+    year2 = years[-1]
+    pred.init_from_local()
+    graph =  pred.test_deepness_Unique(17)
+    context = {
+        'titre' : titre,
+        'year1' : year1,
+        'year2' : year2,
+        'graph' : graph,
+    }
+
+    return render(request, 'ModelSpe.html', context)
 
 def Predictions(request):
     grandPrix = request.GET.get('grandPrix','3')
@@ -56,12 +71,13 @@ def Predictions(request):
 
 
     pred.init_from_local()
+    
     name = ''
-    model_rd,y_pred,acc,X_test,X_train,param,results,results_json = [],[],[],[],[],[],[],[]
+    model_rd,y_pred,acc,X_test,X_train,param,results,results_json  = [],[],[],[],[],[],[],[]
     try:
         
         model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_raceV2(int(year),int(grandPrix),17)
-
+        
         results = pd.DataFrame(columns=['Position','Prediction'])
         results['Prediction'] =y_pred
         if len(y_pred) == 20 :

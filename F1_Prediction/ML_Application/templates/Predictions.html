@@ -248,7 +248,7 @@
         <!--ul style="margin-bottom: 16px"> {{results|safe}} </ul-->
         
         <div class="container">
-            <h2 class="text-center"><u>Prediction results</u></h2><br>            
+            <h2 class="text-center">Prediction results</h2><br>            
             <table class="rtable">
               <thead>
                 <tr>
@@ -279,15 +279,8 @@
 
         <p style=" margin-top:25px;">-  <b>Model specifications  </b>-</p>
         <p style=" margin-top:16px;">-  {{model_rd}} {{model_params }}  -</p>
-        {% if graph %}
-            <ul>
-            {% for graphique in graph %}
-                <li style="margin-bottom: 16px"> {{ graphique | safe }} </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No graphique available</p>
-        {% endif %}
+
+        
     </div>
 
     </center>
