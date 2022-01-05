@@ -397,7 +397,7 @@ def DriversQualiComparison():
     if (teamColor1 == teamColor2):
         teamColor2 = '#000000'
     
-    fig, ax = plt.subplots(2,1,figsize = (10,20))
+    fig, ax = plt.subplots(2,1,figsize = (15,20))
     ax[0].plot(fTelemetry1['Distance'], fTelemetry1['Speed'], color = teamColor1, label = 'NOR')
     ax[0].plot(fTelemetry2['Distance'], fTelemetry2['Speed'], color = teamColor2, label = 'SAI')
     ax[0].legend(loc = "best", fontsize = 12)
