@@ -110,7 +110,7 @@ def Visualization(request):
     driver1Defined = 'NOR'
     driver2Defined = 'SAI'
 
-    #viz.init_viz()
+    viz.init_viz()
 
     graph = [
         viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P1')).to_html(full_html = False),
