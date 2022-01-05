@@ -253,6 +253,7 @@
               <thead>
                 <tr>
                   <th>Position</th>
+                  <th>Prediction</th>
                   <th>Correct</th>
                   <th>Correct Interval +-1 </th>
                   <th>Correct Interval +-2</th>
@@ -265,6 +266,7 @@
               {% for i in results %}
                 <tr>
                   <td>{{i.Position}}</td>
+                  <td>{{i.Prediction}}</td>
                   <td>{{i.Correct}}</td>
                   <td>{{i.Correct_Interval_1}}</td>
                   <td>{{i.Correct_Interval_2}}</td>
