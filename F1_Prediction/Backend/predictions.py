@@ -69,6 +69,13 @@ def model_prevision_race(year,GpNumber):
     y_pred_noRank,acc_NoRank = evaluateNoDisplay(model_rd, X_test,y_test)
     y_pred,acc = evaluaterankNoDisplay( y_test, y_pred_noRank)
     return model_rd,y_pred,acc,X_test,X_train
+def model_prevision_raceV2(year,GpNumber,n):
+    X_train,y_train,X_test,y_test = test_train_creation_gpV2(df,year,GpNumber,n)
+    random_forest = RandomForestRegressor(random_state = 47) 
+    model_rd = random_forest.fit(X_train, y_train)
+    y_pred_noRank,acc_NoRank = evaluateNoDisplay(model_rd, X_test,y_test)
+    y_pred,acc = evaluaterankNoDisplay( y_test, y_pred_noRank)
+    return model_rd,y_pred,acc,X_test,X_train
 
 def timeStrToInt(df,columnName):
     l = []
@@ -137,9 +144,40 @@ def which_gp(gpNumber,year,df_):
         train = df_.iloc[idx_begin:idx]
         test = df_.iloc[idx:idx_end]
     return train,test
+def which_gpV2(gpNumber,year,df,n):
+    if year != 2018:
+        test,train = None,None
+        if (gpNumber-n)<=0:
+            gpy_1 = df[df['year']==year-1]['gpNumber'].max()
+            idx = df[(df['gpNumber']==(gpNumber)) & (df['year']==year)].index[0]
+            idx_begin = df[(df['gpNumber']==(gpy_1+(gpNumber-n))) & (df['year']==(year-1))].index[0]
+            idx_end = idx+20
+            train = df.iloc[idx_begin:idx]
+            test = df.iloc[idx:idx_end]
+        else:
+            idx = df[(df['gpNumber']==(gpNumber)) & (df['year']==year)].index[0]
+            idx_begin = df[df['year']==year].index[0]
+            idx_end = idx+20
+            train = df.iloc[idx_begin:idx]
+            test = df.iloc[idx:idx_end]
+    else:
+        if gpNumber != 1:
+            idx = df[(df['gpNumber']==gpNumber) & (df['year']==year)].index[0]
+            idx_begin = df[df['year']==year].index[0]
+            idx_end = idx+20
+            train = df.iloc[idx_begin:idx]
+            test = df.iloc[idx:idx_end]
+    return train,test
 
 def test_train_creation_gp(df,year,gpNumber):
     train, test = which_gp(gpNumber,year,df)
+    X_train = train.drop(['position'], axis=1)
+    y_train = train['position']
+    X_test = test.drop(['position'], axis=1)
+    y_test = test['position']
+    return X_train,y_train,X_test,y_test
+def test_train_creation_gpV2(df,year,gpNumber,n):
+    train, test = which_gpV2(gpNumber,year,df,n)
     X_train = train.drop(['position'], axis=1)
     y_train = train['position']
     X_test = test.drop(['position'], axis=1)

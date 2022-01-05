@@ -59,7 +59,7 @@ def Predictions(request):
     model_rd,y_pred,acc,X_test,X_train,param,results = [],[],[],[],[],[],[]
     try:
         
-        model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_race(int(year),int(grandPrix))
+        model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_raceV2(int(year),int(grandPrix),17)
 
         results = pd.DataFrame(columns=['Position','Prediction'])
         results['Prediction'] =y_pred
