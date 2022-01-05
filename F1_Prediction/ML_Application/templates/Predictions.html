@@ -81,7 +81,7 @@
         }
 
         a:link, a:visited {
-            background-color: rgba(240, 220, 164, 0.651);
+            background-color: rgba(255, 255, 255, 0.651);
             color: black;
             border: 2px solid black;
             padding: 10px 20px;
@@ -102,37 +102,42 @@
         }
 
     </style>
-    <title>Analyse Foncière</title>
+    <title>F1 analysis</title>
 </head>
 
 <body id="reportsPage">
     <a href= "/" style="font-weight: bold; color: darkred;"> ⇐ </a>
     <div id="intro">
-        <h1 class="centrer" style="font-family:georgia; font-size:2.3em; margin: 0px 0px 45px 0px;">Analyse par année des transactions foncières</h1>
+        <h1 class="centrer" style="font-family:georgia; font-size:2.3em; margin: 0px 0px 45px 0px;">F1 Sunday Race Results Prediction</h1>
     </div>
-  
+
     <hr id="bold"/>
 
+    <center>
+
+    <h3 style = "font-family:calibri; margin-top:30px;"> Choose the F1 season for the prediction first : </H4>
+
     <div class="" id="home">
-        <center>
         <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
             {% csrf_token %}
             {{ form }}
-            <input type="submit" value="✓" style="margin: 10px 0px 20px 0px;">
+            <input type="submit" value="✓" style="margin: 0px 0px 20px 0px;">
         </form>
+
+        <h3 style = "font-family:calibri;"> Then, select a Grand Prix to be predicted : </H4>
 
         <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
             {% csrf_token %}
             {{ form1 }}
-            <input type="submit" value="✓" style="margin: 20px 0px 20px 0px;">
+            <input type="submit" value="✓" style="margin: 0px 0px 20px 0px;">
         </form>
 
         <hr/ id="begins">
 
 
 
-        <h3 style="font-family:optima; font-size:1.8em; margin-top:30px;">- Year selected {{year}} -</h3>
-        <h3 style="font-family:optima; font-size:1.8em; margin-top:30px;">- Grand Prix selected {{name}} :{{grandPrix}} -</h3>
+        <h3 style="font-family:helvetica; font-size:1.4em; margin-top:30px;">--  Year selected : {{year}}  --</h3>
+        <h3 style="font-family:helvetica; font-size:1.4em; margin-top:30px;">--  Grand Prix selected : {{name}}, Season's GP n°{{grandPrix}}  --</h3>
 
         
 
@@ -149,9 +154,9 @@
         {% else %}
             <p>Pas de graphique disponible</p>
         {% endif %}
-        </center>
     </div>
 
+    </center>
 </body>
 
 </html>
