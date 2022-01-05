@@ -1,6 +1,7 @@
 # F1_ML_Prediction
 Formula one data analysis and prediction using machine learning techniques and FastF1 framework.
 
+
 ## Website opening procedure
 Make sure you own all required packages/libraries to launch the project thanks to requirements.txt : "pip install -r requirements.txt"
 
@@ -11,10 +12,29 @@ To display the website on internet, join the following link --> http://127.0.0.1
 ## Project Folder Organization
 .csv files --> Data
 
-Data Calculations and Displays --> F1_Prediction/Backend
+Data Calculations and Displays --> F1_Prediction/Backend (/Viz.py for visualisation OR /predictions.py for prediction)
 
 Django website --> F1_Prediction
 
 Project's Powerpoint --> Powerpoint
 
 FastF1 Notebooks --> Notebooks
+
+
+
+### Project Outcome
+
+At the start of the project, we had to deal with FastF1 data unstability.  
+After a substantial formatting work, we obtained allData.csv (cf. "Practices_Records.ipynb" and "Dataset_Creation.ipynb").  
+allData.csv gathers all sessions results from 2018 to 2021.
+
+
+You can have an overview of any season or session from 2018 to 2021 thanks to "F1_Prediction/Backend/Viz.py", you can even compare two drivers performance on a particular venue.
+
+
+You can predict any weekend's race from 2018 to 2021 with "F1_Prediction/Backend/predictions.py". After many models trials, we finally went for a Random Forest Regressor, with an Output Ranking transformation;  
+Best parameters being : random state = 47, previous weekends considered = 17.
+
+Our prediction model has approximately a 14% accuracy. 
+This is better than 5% which is the total random manner mean accuracy.  
+It's not necessarily a low percentage considering F1 is a motorsport, and various events can completely modify races finishing order.
