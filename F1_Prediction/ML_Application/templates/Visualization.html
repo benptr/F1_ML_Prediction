@@ -114,20 +114,21 @@
     <hr id="bold"/>
 
     <div class="" id="home">
-        <center>
 
         <hr/ id="begins">
+        
+        <div>
+            <h2> This page shows our data visualisation possibilities. </h2>
+            <h4> For the Bahrain Grand Prix from the 2021 season, Lando Norris and Carlos Sainz are compared. </h4>
+        </div>
 
         {% if graph %}
-            <ul>
             {% for graphique in graph %}
                 <li style="margin-bottom: 16px"> {{ graphique | safe }} </li>
             {% endfor %}
-            </ul>
         {% else %}
             <p>Pas de graphique disponible</p>
         {% endif %}
-        </center>
     </div>
 
 </body>

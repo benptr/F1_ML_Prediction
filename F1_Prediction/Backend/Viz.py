@@ -10,12 +10,15 @@ import math
 from datetime import datetime, timedelta
 from timple.timedelta import strftimedelta
 import re
+import mpld3
 
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
 from matplotlib.pyplot import figure
 from matplotlib.ticker import FormatStrFormatter
+import plotly.express as px
+import plotly.graph_objects as go
 
 
 df = None
@@ -33,7 +36,7 @@ def init_viz():
     fastf1.Cache.enable_cache(r'..\Data\Cache')
 
     #---> Data management
-    df = pd.read_csv("Backend/Datasets/allData.csv")
+    df = pd.read_csv("../Data/allData.csv")
 
     races = df[df["sessionName"] == "Race"]
 
@@ -115,11 +118,11 @@ def TimeDeltaTotalSeconds(delta):
 #---> Plots made with "races" dataframe
 # Session needs to be retrieved before with RetrieveSession(year, gpNumber, sessionName)
 # Number is only meant to define qualification session number
+#plotly express version
 def RankingDisplay(session, Number = None):
     
-    fig, ax = plt.subplots(figsize = (20,10))
-    plt.rcParams["figure.figsize"] = (20,10)
-    #plt.rcParams["figure.figsize"] = plt.rcParamsDefault["figure.figsize"]
+    fig = None
+
     title = ""
     
     team_colors = list()
@@ -131,18 +134,7 @@ def RankingDisplay(session, Number = None):
         session['fastestLapTime'] = session['fastestLapTime'].apply(FakeTimeDeltaToTimeDelta)
         session['DeltaP'] = session['fastestLapTime'] - session['fastestLapTime'].min()
         
-        ax.barh(session.index, session['DeltaP'],
-                color = team_colors, edgecolor='grey')
-        
-        ax.set_xticklabels([f"+{x}s" for x in ax.get_xticks()[:-1] / 1000000000])
-
-        ax.set_yticks(session.index)
-        ax.set_yticklabels(session['code'])
-
-        ax.invert_yaxis()
-
-        ax.set_axisbelow(True)
-        ax.xaxis.grid(True, which='major', linestyle='--', color='black', zorder=-1000)
+        fig = px.bar(session, x = 'DeltaP', y = 'code', orientation = 'h', color = 'code', color_discrete_sequence = team_colors)
 
         fastest = session[session["DeltaP"] == timedelta(0)]
         title = session["gpName"].iloc[0] + " " + str(session["year"].iloc[0]) + " " + str(session["sessionName"].iloc[0])
@@ -160,33 +152,12 @@ def RankingDisplay(session, Number = None):
         session['DeltaQ3'] = session['Q3'] - session['Q3'].min()
         
         session = session[session[f'Q{Number}'].notnull()]
-    
-        ax.barh(session.index, session[f'DeltaQ{Number}'],
-                color = team_colors, edgecolor='grey')
         
-        #maxDelta = math.ceil(session[f"DeltaQ{Number}"].max().seconds + (session[f"DeltaQ{Number}"].max().microseconds / 1000000))
-        #ticksNumber = len(ax.get_xticklabels()) - 1
-        #ax.set_xticklabels([f"+{x}s" for x in np.arange(0,maxDelta,round(maxDelta/ticksNumber, 2))])
-        
-        ax.set_xticklabels([f"+{x}s" for x in ax.get_xticks()[:-1] / 1000000000])
-
-        ax.set_ylabel('Sunday Grid Order', fontsize = 10)
-        ax.yaxis.set_label_coords(-0.042, .5)
-        ax.set_yticks(session.index)
-        ax.set_yticklabels(session['code'])
-
-        ax.invert_yaxis()
-
-        ax.set_axisbelow(True)
-        ax.xaxis.grid(True, which='major', linestyle='--', color='black', zorder=-1000)
+        fig = px.bar(session, x = f'DeltaQ{Number}', y = 'code', orientation = 'h', color = 'code', color_discrete_sequence = team_colors)
 
         fastest = session[session[f"DeltaQ{Number}"] == timedelta(0)]
         title = session["gpName"].iloc[0] + " " + str(session["year"].iloc[0]) + f" Qualifying {Number}"
         title += "\nFastest Lap: " + strftimedelta(fastest[f"Q{Number}"].iloc[0], '%m:%s.%ms') + " by " + fastest["driverId"].iloc[0].capitalize()
-        
-        if (Number in [1,2]):
-            for tick in plt.gca().get_yticklabels()[-5:]:
-                tick.set_color('red')
     
     else:
         finishTime = session["TimeInterval"].iloc[0]
@@ -203,43 +174,25 @@ def RankingDisplay(session, Number = None):
         sessionR = session[session["TimeInterval"].notnull()]
         sessionR["TimeInterval"] = pd.to_timedelta(sessionR["TimeInterval"])
         
-        hbars = ax.barh(sessionR.index, sessionR["TimeInterval"],
-                color = team_colors, edgecolor='grey')
-        
-        ax.set_xticklabels([f"+{RaceTimeInterval(x)}s" for x in ax.get_xticks()[:-1] / 1000000000])
-        
-        ax.set_yticks(sessionR.index)
-        ax.set_yticklabels(sessionR['code'])
-
-        ax.invert_yaxis()
-
-        ax.set_axisbelow(True)
-        ax.xaxis.grid(True, which='major', linestyle='--', color='black', zorder=-1000)
+        fig = px.bar(sessionR, x = 'TimeInterval', y = 'code', orientation = 'h', color = 'code', color_discrete_sequence = team_colors)
         
         title = sessionR["gpName"].iloc[0] + " " + str(sessionR["year"].iloc[0]) + " " + str(sessionR["sessionName"].iloc[0])
         title += "\nFastest : " + finishTime + " - " + sessionR["driverId"].iloc[0].capitalize()
         
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 12)
-
-    plt.suptitle(title, y = 0.95, fontsize=16)
+    fig.update_layout(title = title)
     
-    plt.show()
-    
-    #Extra race information
-    if (session["sessionName"].iloc[0] == "Race"):
-        print("Retirements :\n")
-        for index, row in session[session["TimeInterval"].isna()].iterrows():
-            print(row['code'], "---> DNF /", row['status'])
+    return fig
     
 
 #Constructors is True for Constructors Standings, False otherwise
+#plotly express version
 def SeasonRankings(year, constructors):
-    
-    fig, ax = plt.subplots()
     
     team_colors = list()
     team_colors2 = list()
+    
+    fig = None
+    standings = None
     
     if (constructors):
         standings = pd.DataFrame(races[races["year"] == year].groupby('constructorId')['points'].sum().sort_values(ascending = False))
@@ -269,48 +222,29 @@ def SeasonRankings(year, constructors):
                 color = dictTeamColors[row["constructorId2"]]
                 team_colors2.append(color) 
     
-    
-    indices = np.arange(standings.shape[0])
-    total = None
-    
-    if (constructors):
-        plt.bar(indices, standings['points'], width = 0.3, edgecolor='grey', color = team_colors)
-        plt.xticks(ticks = indices, labels = standings.index)
-        total = standings['points']
-    else:
-        plt.bar(indices, standings['totalPoints'], width = 0.4, edgecolor='grey', color = team_colors)
-        plt.bar(indices, standings['points2'], bottom = standings['points'], width = 0.4, edgecolor='grey', color = team_colors2)
-        plt.xticks(ticks = indices, labels = standings["code"])
-        total = standings['totalPoints']
-    
-    plt.ylim(0, total.max() + 50)
-    
-    n = 0
-    for p in ax.patches[0:standings.shape[0]]:
-        ax.annotate(text = total.iloc[n],
-            xy=(p.get_x()+p.get_width()/2., p.get_height()),
-            ha='center',
-            va='center',
-            xytext=(0, 10),
-            textcoords='offset points')
-        n += 1
-
-            
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 12)
-    
     title = f"Season {year}\n"
     if (constructors):
         title += f'Constructors Standings - Champions : {standings.index[0].capitalize()} with {standings["points"].iloc[0]} Points'
     else:
         title += f'Drivers Standings - Champion : {standings["code"].iloc[0]} with {standings["totalPoints"].iloc[0]} Points'
-    plt.suptitle(title, y = 0.95, fontsize=16)
-    plt.show()
+    
+    total = None
+    
+    if (constructors):
+        stat = 'points'
+        fig = px.bar(standings, x = standings.index, y = stat, text = stat, title = title, color = standings.index, color_discrete_sequence = team_colors)
+    else:
+        stat = 'totalPoints'
+        fig = px.bar(standings, x = 'code', y = stat, text = stat, title = title, color = 'code', color_discrete_sequence = team_colors)
+    
+    fig.update_traces(textposition='auto')
+    
+    return fig
 
 
 #DNF is False if you want to display statistics without weekends when the race ended up with a DNF
-def QualiRaceRelation(year, DNF):
-    
+#Plotly express version
+def QualiRacezerRelation(year, DNF):
     if (DNF):
         QRrelation = races[(races["year"] == year) & (races['positionText'] != 'R')].groupby('code')[['grid', 'position']].mean()
     else:
@@ -318,32 +252,24 @@ def QualiRaceRelation(year, DNF):
     QRrelation = QRrelation.sort_values(['grid'])
     QRrelation["racecraftEdge"] = QRrelation["grid"] - QRrelation["position"]
     
-    indices = np.arange(QRrelation.shape[0])
-
-    width = 0.30
-
-    plt.bar(indices, QRrelation['grid'], width = width)
-
-    plt.bar(indices + width, QRrelation['position'], width = width)
-
-    plt.xticks(ticks = indices, labels = QRrelation.index)
-
-    plt.gca().legend(('grid position','race result'), fontsize = 12)
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 12)
-    
     title = f"Grid position/Race result\n{year} F1 season"
     if (DNF):
         title += " excluding weekends where DNFs occurred for drivers"
-    plt.suptitle(title, y = 0.95, fontsize=16)
-    plt.show()
-
+    
+    fig = go.Figure(data=[
+        go.Bar(name='Grid position', x = QRrelation.index, y = QRrelation['grid']),
+        go.Bar(name='Race result', x = QRrelation.index, y = QRrelation['position'])
+    ])
+    
+    fig.update_layout(title = title, barmode='group', colorway = ['#1f77b4', '#ff7f0e'])
+    
+    return fig
 
 #driversRelated is True if wanting to display DNFs related to the driver
 #drivers is True if wanting to display the stat for drivers (individual overview)
+#Plotly express version
 def DNFCounter(year, driversRelated, drivers):
     
-    fig, ax = plt.subplots()
     team_colors = list()
     
     keyword = ''
@@ -363,7 +289,7 @@ def DNFCounter(year, driversRelated, drivers):
         keyword = 'constructorId'
     
     driversList = races[(races["year"] == year)][keyword].unique().tolist()
-    drv0list = list(zip(driversList, [0.02 for x in range(len(driversList))]))
+    drv0list = list(zip(driversList, [0.01 for x in range(len(driversList))]))
     drv0 = pd.DataFrame(drv0list, columns = [keyword,'count'])
     drv0 = drv0.set_index(keyword)
     DNFs = pd.concat([DNFs, drv0])
@@ -388,29 +314,6 @@ def DNFCounter(year, driversRelated, drivers):
             color = dictTeamColors[index]
             team_colors.append(color)
             
-
-    indices = np.arange(DNFs.shape[0])
-    
-    if (drivers):
-        plt.bar(indices, DNFs['count'], width = 0.4, edgecolor='grey', color = team_colors)
-    else:
-        plt.bar(indices, DNFs['count'], width = 0.3, edgecolor='grey', color = team_colors)
-    
-    plt.xticks(ticks = indices, labels = DNFs.index)
-    
-    n = 0
-    for p in ax.patches[0:DNFs.shape[0]]:
-        ax.annotate(text = math.floor(DNFs["count"].iloc[n]),
-            xy=(p.get_x()+p.get_width()/2., p.get_height()),
-            ha='center',
-            va='center',
-            xytext=(0, 10),
-            textcoords='offset points')
-        n += 1
-        
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 12)
-    
     title = f'{year} Season '
     if (drivers):
         title += "Drivers"
@@ -422,19 +325,21 @@ def DNFCounter(year, driversRelated, drivers):
     else:
         title += "car failures"
     
-    plt.suptitle(title, y = 0.95, fontsize=16)
-    plt.show()
+    fig = px.bar(DNFs, x = DNFs.index, y = 'count', title = title, text = 'count', color = DNFs.index, color_discrete_sequence = team_colors)
+    fig.update_traces(textposition='auto')
+    
+    return fig
 
 
 
 #Only displays teams results having stayed in F1 during the whole specified period
+#Plotly express version
 def ConstructorsForm(yearMin, yearMax):
-    
-    fig, ax = plt.subplots()
     
     teamsPoints = races[(races["year"] >= yearMin) & (races["year"] <= yearMax)].groupby(['year', 'constructorId'])["points"].sum()
     teamsPercentages = teamsPoints.groupby(level=0).apply(lambda x: 100 * x / float(x.sum()))
     teamsPercentages = teamsPercentages.reset_index()
+    teamsPercentages = teamsPercentages.round({'points': 2})
     teamsPercentages = teamsPercentages.rename({'points': 'pointsPortion'}, axis='columns')
     
     teamsPresence = pd.DataFrame(teamsPercentages['constructorId'].value_counts())
@@ -442,38 +347,13 @@ def ConstructorsForm(yearMin, yearMax):
     teamsCompleteData = teamsPresence[teamsPresence["seasons"] == (teamsPercentages['year'].max() - teamsPercentages['year'].min() + 1)].index
     
     teamsPercentages = teamsPercentages[teamsPercentages["constructorId"].isin(teamsCompleteData)].sort_values(['year', 'pointsPortion'], ascending = [True, False])
-
-    indices = np.arange(teamsPercentages['year'].max() - teamsPercentages['year'].min() + 1)
     
-    n = 0
-    teamsScore = []
-    for teamName in teamsPercentages['constructorId'].unique().tolist():
-        teamDisplayed = teamsPercentages[teamsPercentages['constructorId'] == teamName]
-        
-        bars = None
-        if (n == 0):
-            bars = plt.bar(indices, teamDisplayed['pointsPortion'], width = 0.4, edgecolor='grey', color = dictTeamColors[teamName], label = teamDisplayed['constructorId'].iloc[0])
-        else:
-            bars = plt.bar(indices, teamDisplayed['pointsPortion'], bottom = sum(teamsScore), width = 0.4, edgecolor='grey', color = dictTeamColors[teamName], label = teamDisplayed['constructorId'].iloc[0])
-        
-        #for p in ax.containers[0:teamDisplayed.shape[0]]:
-            #p.set_label("oui")
-        ax.bar_label(bars, label_type = "center", labels = [f'{round(e, 2)}%' for e in teamDisplayed['pointsPortion']])
-        
-        n += 1
-        teamsScore.append(np.array(teamDisplayed['pointsPortion']))
+    title = f'Constructors Standings Points Percentage From {yearMin} to {yearMax}'
     
-    plt.xticks(ticks = indices, labels = teamsPercentages['year'].unique().tolist())
+    fig = px.bar(teamsPercentages, x = 'year', y = 'pointsPortion', title = title, text = 'pointsPortion', color = 'constructorId', color_discrete_sequence = [dictTeamColors[team] for team in teamsPercentages['constructorId'].unique().tolist()])
+    fig.update_traces(textposition='inside')
     
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 12)
-    
-    ax.legend(fontsize = 13, loc="best")
-
-    title = f'Constructors Standings\nFrom {yearMin} to {yearMax}'
-
-    plt.suptitle(title, y = 0.95, fontsize=16)
-    plt.show()
+    return fig
         
 
 #---> Telemetry plot
@@ -526,6 +406,10 @@ def DriversQualiComparison(year, gpNumber, driver1, driver2):
         ax[1].scatter(fTelemetry1.loc[i,'X'], fTelemetry1.loc[i,'Y'], color = trackColor[i])
     ax[1].set_title(f'Speed - Track Comparison | {driver1} vs {driver2}', fontsize = 12)
 
+    plt.close()
+
+    return mpld3.fig_to_html(fig)
+
 
 
 #---> Laps plot
@@ -573,25 +457,9 @@ def RacePaceComparison(year, gpNumber, driver1, driver2):
     if (teamColor1 == teamColor2):
         teamColor2 = '#000000'
     
-    plt.figure(figsize=(20,10), dpi= 80)
+    fig = plt.figure(figsize=(20,10), dpi= 80)
     plt.fill_between(paceComp.index, paceComp, 0, where=paceComp >= 0, facecolor = teamColor1, interpolate=True, alpha=0.7, label = pace1["Driver"].iloc[0])
     plt.fill_between(paceComp.index, paceComp, 0, where=paceComp <= 0, facecolor = teamColor2, interpolate=True, alpha=0.7, label = pace2["Driver"].iloc[0])
-
-    n = 0
-    for pitstop in pace1[~pace1["PitInTime"].isnull()]["LapNumber"]:
-        if (n == 0):
-            plt.axvline(x = pitstop, color = teamColor1, label = f'Pit Stop {pace1["Driver"].iloc[0]}')
-        else:
-            plt.axvline(x = pitstop, color = teamColor1)
-        n += 1
-
-    n = 0
-    for pitstop in pace2[~pace2["PitInTime"].isnull()]["LapNumber"]:
-        if (n == 0):
-            plt.axvline(x = pitstop, color = teamColor2, label = f'Pit Stop {pace2["Driver"].iloc[0]}')
-        else:
-            plt.axvline(x = pitstop, color = teamColor2)
-        n += 1
     
     plt.ylim(-abs(max(paceComp)), abs(max(paceComp)))
     plt.xlabel("Race Lap Number")
@@ -601,6 +469,8 @@ def RacePaceComparison(year, gpNumber, driver1, driver2):
     title = f'{s["gpName"].iloc[0]} {year} / {s["sessionName"].iloc[0]}\n'
     title += f'Pace Comparison | {driver1} vs {driver2}'
     plt.title(title, fontsize = 14)
+    
+    plt.close()
 
-    plt.show()
+    return mpld3.fig_to_html(fig)
 

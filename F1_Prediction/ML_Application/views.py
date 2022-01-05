@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.template import loader
 from Backend import Viz as viz
+import mpld3
+import plotly.express as px
+import plotly.graph_objects as go
 from Backend import predictions as pred
 from .forms import *
 import logging
@@ -101,24 +104,24 @@ def Visualization(request):
     dfAll,races,driversCauses,dictTeamColors = viz.init_viz()
 
     graph = [
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P1')),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P2')),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P3')),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 1),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 2),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 3),
-        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'R')),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P1')).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P2')).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P3')).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 1).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 2).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'Q'), 3).to_html(full_html = False),
+        viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'R')).to_html(full_html = False),
 
-        viz.SeasonRankings(yearDefined, True),
-        viz.SeasonRankings(yearDefined, False),
+        viz.SeasonRankings(yearDefined, True).to_html(full_html = False),
+        viz.SeasonRankings(yearDefined, False).to_html(full_html = False),
 
-        viz.QualiRaceRelation(yearDefined, True),
-        viz.QualiRaceRelation(yearDefined, False),
+        viz.QualiRaceRelation(yearDefined, True).to_html(full_html = False),
+        viz.QualiRaceRelation(yearDefined, False).to_html(full_html = False),
 
-        viz.DNFCounter(yearDefined, False, False),
-        viz.DNFCounter(yearDefined, True, False),
+        viz.DNFCounter(yearDefined, False, False).to_html(full_html = False),
+        viz.DNFCounter(yearDefined, True, False).to_html(full_html = False),
 
-        viz.ConstructorsForm(year1, year2),
+        viz.ConstructorsForm(year1, year2).to_html(full_html = False),
 
         viz.DriversQualiComparison(yearDefined, gpNumberDefined, driver1Defined, driver2Defined),
 
@@ -134,8 +137,6 @@ def Visualization(request):
         'driver1Defined' : driver1Defined,
         'driver2Defined' : driver2Defined,
         'graph' : graph
-
     }
 
-
-    return render(request, 'index.html', context)
+    return render(request, 'Visualization.html', context)
