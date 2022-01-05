@@ -67,10 +67,12 @@ def Predictions(request):
             results['Position'] =[i for i in range(1,21)]
             results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,21)]]
             results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,21)]]
+            results['Correct_Interval_2'] = ['yes' if (((x-2) == y_pred[x-1]) |((x+2) == y_pred[x-1])|(x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,21)]]
         else:
             results['Position'] =[i for i in range(1,20)]
             results['Correct'] = ['yes' if x == y_pred[x-1] else 'no' for x in [i for i in range(1,20)]]
             results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
+            results['Correct_Interval_2'] = ['yes' if (((x-2) == y_pred[x-1]) |((x+2) == y_pred[x-1])|(x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
         results['Driver'] = pred.data_driver(X_test)
         results = results.to_html()
         name = pred.get_name(X_test)
