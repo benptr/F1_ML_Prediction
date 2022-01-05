@@ -5,7 +5,7 @@ import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestRegressor
-
+from scipy.interpolate import make_interp_spline
 data = None
 df = None
 data_complete = None
@@ -218,9 +218,85 @@ def data_driver(X_test):
 def get_name(X_test):
     name = data_complete['gpName'].iloc[(X_test.index[0])]
     return name
+
+    
+def test_deepness_Unique(n,df):
+    print('Results for ',n,'gp considered')
+    year = [2018,2019,2020,2021]
+    GpNumber = [i for i in range(1,23)]
+    reg_scaled=[]
+    interval_acc=[]
+    position_acc=[]
+    evolution_acc = []
+    for y in year:
+        for g in GpNumber:
+            try:
+                X_train,y_train,X_test,y_test = test_train_creation_gpV2(df,y,g,n)
+
+
+                random_forest = RandomForestRegressor(random_state = 47) 
+                model_rd = random_forest.fit(X_train, y_train)
+                y_pred,acc = evaluateNoDisplay(random_forest, X_test, y_test)
+                l=[]
+                l.append((y,g))
+                l.append(acc)
+                l.append(y_test)
+                l.append(y_pred.copy())
+                y_pred_2 = evaluaterankNoDisplay(y_test,y_pred)
+                l.append(y_pred_2)
+                reg_scaled.append(l)
+            except:
+                error = 0
+    
+    intervals = [interval_acc(reg_scaled,x) for x in range(15)]
+    x = [x for x in range(15)]
+    fig, ax = plt.subplots(figsize = (10,7))
+    ax.scatter(x, intervals)
+    for i, txt in enumerate([round(j,2) for j in intervals]):
+        ax.annotate(txt, (x[i], (intervals[i]-4)))
+    ax.plot([x for x in range(15)], intervals)
+    ax.set_title('Accuracy in fonction of the position Interval')
+    ax.set_ylabel('Mean accuracy in %')
+    ax.set_xlabel('position Interval')
+    plt.grid(axis='x', color='0.8')
+    ax.set_facecolor('seashell')
+    plt.tight_layout();
+    
+    positions_acc = [position_acc(reg_scaled,x) for x in range(1,21)]
+    x = [x for x in range(1,21)]
+    fig, ax = plt.subplots(figsize = (10,7))
+    ax.bar(x, positions_acc)
+    for i, txt in enumerate([round(j,2) for j in positions_acc]):
+        ax.annotate(txt, ((x[i]-0.5), (positions_acc[i]+0.5)))
+    ax.set_title('Accuracy in fonction of the position')
+    ax.set_ylabel('Mean accuracy in %')
+    ax.set_xlabel('position')
+    plt.grid(axis='x', color='0.8')
+    ax.set_facecolor('seashell')
+    plt.tight_layout();
+    evolutions = [evolution_acc(reg_scaled,x) for x in range(1,23)]
+    x = np.array([x for x in range(1,23)])
+
+
+    X_Y_Spline = make_interp_spline(x, evolutions)
+    X_ = np.linspace(x.min(), x.max(), 500)
+    Y_ = X_Y_Spline(X_)
+
+    fig, ax = plt.subplots(figsize = (10,7))
+    ax.scatter(x, evolutions)
+    for i, txt in enumerate([round(j,2) for j in evolutions]):
+        ax.annotate(txt, ((x[i]-0.4), (evolutions[i]+0.08)))
+    ax.plot(X_, Y_)
+    ax.set_title('Accuracy evolution during the season')
+    ax.set_ylabel('Mean accuracy in %')
+    ax.set_xlabel('Grand Prix Number')
+    plt.grid(axis='x', color='0.8')
+    ax.set_facecolor('seashell')
+    plt.tight_layout();
+
+
 def init_from_local():
     global df,data
     data = pd.read_csv(r'..\Data\allData.csv')
     df = dataCreation(data)
     return df,data
-        

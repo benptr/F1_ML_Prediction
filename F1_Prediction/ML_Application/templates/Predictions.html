@@ -5,7 +5,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    
+    <style>       
+        .rtable {
+        
+            display: inline-block;
+            vertical-align: top;
+            max-width: 100%;
+            
+            overflow-x: auto;
+            
+            // optional - looks better for small cell values
+            white-space: nowrap;
+        
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+        
+        .rtable,
+        .rtable--flip tbody {
+        
+            -webkit-overflow-scrolling: touch;
+            
+
+            background: radial-gradient(left, ellipse, rgba(0,0,0, .2) 0%, rgba(0,0,0, 0) 75%) 0 center,
+                        radial-gradient(right, ellipse, rgba(0,0,0, .2) 0%, rgba(0,0,0, 0) 75%) 100% center;
+            background-size: 10px 100%, 10px 100%;
+            background-attachment: scroll, scroll;
+            background-repeat: no-repeat;
+        }
+        
+    
+        .rtable td:first-child,
+        .rtable--flip tbody tr:first-child {
+            background-image: linear-gradient(to right, rgba(255,255,255, 1) 50%, rgba(255,255,255, 0) 100%);
+            background-repeat: no-repeat;
+            background-size: 20px 100%;
+        }
+        
+    
+        .rtable td:last-child,
+        .rtable--flip tbody tr:last-child {
+            background-image: linear-gradient(to left, rgba(255,255,255, 1) 50%, rgba(255,255,255, 0) 100%);
+            background-repeat: no-repeat;
+            background-position: 100% 0;
+            background-size: 20px 100%;
+        }
+        
+        .rtable th {
+            font-size: 11px;
+            text-align: left;
+            text-transform: uppercase;
+            background: #f2f0e6;
+        }
+        
+        .rtable th,
+        .rtable td {
+            padding: 6px 12px;
+            border: 1px solid #d9d7ce;
+        }
+        
+        .rtable--flip {
+            display: flex;
+            overflow: hidden;
+            background: none;
+        }
+        
+        .rtable--flip thead {
+            display: flex;
+            flex-shrink: 0;
+            min-width: min-content;
+        }
+        
+        .rtable--flip tbody {
+            display: flex;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .rtable--flip tr {
+            display: flex;
+            flex-direction: column;
+            min-width: min-content;
+            flex-shrink: 0;
+        }
+        
+        .rtable--flip td,
+        .rtable--flip th {
+            display: block;
+        }
+        
+        .rtable--flip td {
+            background-image: none !important;
+            // border-collapse is no longer active
+            border-left: 0;
+        }
+        
+        // border-collapse is no longer active
+        .rtable--flip th:not(:last-child),
+        .rtable--flip td:not(:last-child) {
+            border-bottom: 0;
+        }
         .centrer
         {
             text-align: center;
@@ -115,7 +219,7 @@
 
     <center>
 
-    <h3 style = "font-family:calibri; margin-top:30px;"> Choose the F1 season for the prediction first : </H4>
+    <h3 style = "font-family:calibri; margin-top:30px;"> Choose the F1 season for the prediction first and confirm : </H4>
 
     <div class="" id="home">
         <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
@@ -124,7 +228,7 @@
             <input type="submit" value="✓" style="margin: 0px 0px 20px 0px;">
         </form>
 
-        <h3 style = "font-family:calibri;"> Then, select a Grand Prix to be predicted : </H4>
+        <h3 style = "font-family:calibri;"> Then, select a Grand Prix to be predicted and confirm : </H4>
 
         <form action="/Predictions/?year={{year}}&grandPrix={{grandPrix}}" method="post">
             {% csrf_token %}
@@ -141,10 +245,40 @@
 
         
 
-        <ul style="margin-bottom: 16px"> {{results|safe}} </ul>
+        <!--ul style="margin-bottom: 16px"> {{results|safe}} </ul-->
+        
+        <div class="container">
+            <h2 class="text-center"><u>Prediction results</u></h2><br>            
+            <table class="rtable">
+              <thead>
+                <tr>
+                  <th>Position</th>
+                  <th>Correct</th>
+                  <th>Correct Interval +-1 </th>
+                  <th>Correct Interval +-2</th>
+                  <th>Driver</th>
+                </tr>
+              </thead>
+              <tbody>
+              <!-- jinja2 Technique -->
+              {% if results %}  
+              {% for i in results %}
+                <tr>
+                  <td>{{i.Position}}</td>
+                  <td>{{i.Correct}}</td>
+                  <td>{{i.Correct_Interval_1}}</td>
+                  <td>{{i.Correct_Interval_2}}</td>
+                  <td>{{i.Driver}}</td>
+                </tr>
+              {% endfor %}
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        
 
-        <p2 style=" margin-top:16px;">-  Model specifications  -</p2>
-        <p2 style=" margin-top:16px;">-  {{model_rd}} {{model_params }}  -</p2>
+        <p style=" margin-top:25px;">-  <b>Model specifications  </b>-</p>
+        <p style=" margin-top:16px;">-  {{model_rd}} {{model_params }}  -</p>
         {% if graph %}
             <ul>
             {% for graphique in graph %}
@@ -152,7 +286,7 @@
             {% endfor %}
             </ul>
         {% else %}
-            <p>Pas de graphique disponible</p>
+            <p>No graphique available</p>
         {% endif %}
     </div>
 

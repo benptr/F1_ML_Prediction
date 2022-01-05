@@ -10,6 +10,7 @@ from Backend import predictions as pred
 from .forms import *
 import logging
 import pandas as pd 
+import json
 
 # Create your views here.
 year = 2020
@@ -56,7 +57,7 @@ def Predictions(request):
 
     pred.init_from_local()
     name = ''
-    model_rd,y_pred,acc,X_test,X_train,param,results = [],[],[],[],[],[],[]
+    model_rd,y_pred,acc,X_test,X_train,param,results,results_json = [],[],[],[],[],[],[],[]
     try:
         
         model_rd,y_pred,acc,X_test,X_train = pred.model_prevision_raceV2(int(year),int(grandPrix),17)
@@ -74,7 +75,10 @@ def Predictions(request):
             results['Correct_Interval_1'] = ['yes' if ((x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
             results['Correct_Interval_2'] = ['yes' if (((x-2) == y_pred[x-1]) |((x+2) == y_pred[x-1])|(x == y_pred[x-1]) |((x+1) == y_pred[x-1])|((x-1) == y_pred[x-1])) else 'no' for x in [i for i in range(1,20)]]
         results['Driver'] = pred.data_driver(X_test)
-        results = results.to_html()
+        #results = results.to_html()
+        json_records = results.reset_index().to_json(orient ='records')
+
+        results_json = json.loads(json_records)
         name = pred.get_name(X_test)
         X_test = X_test.to_html()
         X_train = X_train.to_html()
@@ -94,7 +98,7 @@ def Predictions(request):
         'model_params': param,
         'X_test' : X_test,
         'y_test' : [i for i in range(1,21)],
-        'results': results,
+        'results': results_json,
         'name':name,
         'X_train':X_train
 
