@@ -21,6 +21,7 @@ Project's Powerpoint --> Powerpoint
 FastF1 Notebooks --> Notebooks  
 
 <br/>
+
 ### Project Outcome
 
 At the start of the project, we had to deal with FastF1 data unstability.  
