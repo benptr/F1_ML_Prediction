@@ -27,11 +27,15 @@ driversCauses = None
 teamList = None
 teamColors = None
 dictTeamColors = None
+fTelemetry1 = None
+fTelemetry2 = None
+lapsDriver1 = None
+lapsDriver2 = None
 
 print(matplotlib.__version__, "matplotlib version // need to be higher than 3.4")
 
 def init_viz():
-    global df, races, driversCauses, teamList, teamColors, dictTeamColors
+    global df, races, driversCauses, teamList, teamColors, dictTeamColors, fTelemetry1, fTelemetry2, lapsDriver1, lapsDriver2
 
     fastf1.Cache.enable_cache(r'..\Data\Cache')
 
@@ -49,7 +53,27 @@ def init_viz():
     teamColors = ['#900000', '#2b4562', '#0090ff', '#006f62', '#dc0000', '#F596C8', '#fdfdfd', '#ff8700', '#00d2be', '#F596C8', '#0600ef', '#FFF500', '#9B0000', '#0032FF', '#005aff']
     dictTeamColors = dict(zip(teamList, teamColors))
 
-    return df,races,driversCauses,dictTeamColors
+    #Telemetry pre-load
+    sessionComp = fastf1.get_session(2021, 1, 'Q')
+    laps = sessionComp.load_laps(with_telemetry = True)
+    
+    lapsDriver1 = laps.pick_driver('NOR')
+    fLap1 = lapsDriver1.pick_fastest()
+    fTelemetry1 = fLap1.get_telemetry()
+    
+    lapsDriver2 = laps.pick_driver('SAI')
+    fLap2 = lapsDriver2.pick_fastest()
+    fTelemetry2 = fLap2.get_telemetry()
+
+    #Race Laps pre-load
+    sessionComp = fastf1.get_session(2021, 1, 'R')
+    laps = sessionComp.load_laps()
+    
+    lapsDriver1 = laps.pick_driver('NOR')
+
+    lapsDriver2 = laps.pick_driver('SAI')
+
+    return df,races,driversCauses,dictTeamColors, fTelemetry1, fTelemetry2, lapsDriver1, lapsDriver2
 
 #---> Session retrieval with regex help
 #Checks first if number in [1,2,3] exists (--> Practice x), then searches for a "q" (--> Qualification)
@@ -244,7 +268,7 @@ def SeasonRankings(year, constructors):
 
 #DNF is False if you want to display statistics without weekends when the race ended up with a DNF
 #Plotly express version
-def QualiRacezerRelation(year, DNF):
+def QualiRaceRelation(year, DNF):
     if (DNF):
         QRrelation = races[(races["year"] == year) & (races['positionText'] != 'R')].groupby('code')[['grid', 'position']].mean()
     else:
@@ -357,22 +381,11 @@ def ConstructorsForm(yearMin, yearMax):
         
 
 #---> Telemetry plot
-def DriversQualiComparison(year, gpNumber, driver1, driver2):
+def DriversQualiComparison():
     
-    sessionComp = fastf1.get_session(year, gpNumber, 'Q')
-    laps = sessionComp.load_laps(with_telemetry = True)
-    
-    lapsDriver1 = laps.pick_driver(driver1)
-    fLap1 = lapsDriver1.pick_fastest()
-    fTelemetry1 = fLap1.get_telemetry()
-    
-    lapsDriver2 = laps.pick_driver(driver2)
-    fLap2 = lapsDriver2.pick_fastest()
-    fTelemetry2 = fLap2.get_telemetry()
-    
-    sessionOverview = RetrieveSession(year, gpNumber, 'Q')
-    teamColor1 = dictTeamColors[sessionOverview[sessionOverview['code'] == driver1]["constructorId"].iloc[0]]
-    teamColor2 = dictTeamColors[sessionOverview[sessionOverview['code'] == driver2]["constructorId"].iloc[0]]
+    sessionOverview = RetrieveSession(2021, 1, 'Q')
+    teamColor1 = dictTeamColors[sessionOverview[sessionOverview['code'] == 'NOR']["constructorId"].iloc[0]]
+    teamColor2 = dictTeamColors[sessionOverview[sessionOverview['code'] == 'SAI']["constructorId"].iloc[0]]
     
     #Haas(White) --> Light Grey to be visible
     if (teamColor1 == '#fdfdfd'):
@@ -385,12 +398,12 @@ def DriversQualiComparison(year, gpNumber, driver1, driver2):
         teamColor2 = '#000000'
     
     fig, ax = plt.subplots(2,1,figsize = (15,20))
-    ax[0].plot(fTelemetry1['Distance'], fTelemetry1['Speed'], color = teamColor1, label = driver1)
-    ax[0].plot(fTelemetry2['Distance'], fTelemetry2['Speed'], color = teamColor2, label = driver2)
+    ax[0].plot(fTelemetry1['Distance'], fTelemetry1['Speed'], color = teamColor1, label = 'NOR')
+    ax[0].plot(fTelemetry2['Distance'], fTelemetry2['Speed'], color = teamColor2, label = 'SAI')
     ax[0].legend(loc = "best", fontsize = 12)
-    title = f'  {sessionOverview["gpName"].iloc[0]} {year} / {sessionOverview["sessionName"].iloc[0]}'
+    title = f'  {sessionOverview["gpName"].iloc[0]} 2021 / {sessionOverview["sessionName"].iloc[0]}'
     plt.suptitle(title, fontsize = 14, y = 0.92)
-    ax[0].set_title(f'Speed - Digital Comparison | {driver1} vs {driver2}', fontsize = 12)
+    ax[0].set_title(f'Speed - Digital Comparison | NOR vs SAI', fontsize = 12)
     
     diff = fTelemetry1['Speed'] - fTelemetry2['Speed']
     trackColor = []
@@ -404,7 +417,7 @@ def DriversQualiComparison(year, gpNumber, driver1, driver2):
             trackColor.append('lightgrey')
     for i in range(2,len(fTelemetry1)):
         ax[1].scatter(fTelemetry1.loc[i,'X'], fTelemetry1.loc[i,'Y'], color = trackColor[i])
-    ax[1].set_title(f'Speed - Track Comparison | {driver1} vs {driver2}', fontsize = 12)
+    ax[1].set_title(f'Speed - Track Comparison | NOR vs SAI', fontsize = 12)
 
     plt.close()
 
@@ -413,14 +426,7 @@ def DriversQualiComparison(year, gpNumber, driver1, driver2):
 
 
 #---> Laps plot
-def RacePaceComparison(year, gpNumber, driver1, driver2):
-    
-    sessionComp = fastf1.get_session(year, gpNumber, 'R')
-    laps = sessionComp.load_laps()
-    
-    lapsDriver1 = laps.pick_driver(driver1)
-
-    lapsDriver2 = laps.pick_driver(driver2)
+def RacePaceComparison():
     
     pace1 = lapsDriver1[['LapTime', 'LapNumber', 'PitInTime', 'Driver', 'Team']]
     pace1 = pace1.reset_index(drop = True)
@@ -442,7 +448,7 @@ def RacePaceComparison(year, gpNumber, driver1, driver2):
                 else:
                     paceComp[i] = lapafter
                 
-    s = RetrieveSession(year, gpNumber, 'R')
+    s = RetrieveSession(2021, 1, 'R')
     
     teamColor1 = dictTeamColors[s[s["code"] == pace1["Driver"].iloc[0]]['constructorId'].iloc[0]]
     teamColor2 = dictTeamColors[s[s["code"] == pace2["Driver"].iloc[0]]['constructorId'].iloc[0]]
@@ -466,8 +472,8 @@ def RacePaceComparison(year, gpNumber, driver1, driver2):
     plt.ylabel("Delta in Seconds")
     plt.legend(loc = "best", fontsize = 12)
     
-    title = f'{s["gpName"].iloc[0]} {year} / {s["sessionName"].iloc[0]}\n'
-    title += f'Pace Comparison | {driver1} vs {driver2}'
+    title = f'{s["gpName"].iloc[0]} 2021 / {s["sessionName"].iloc[0]}\n'
+    title += f'Pace Comparison | NOR vs SAI'
     plt.title(title, fontsize = 14)
     
     plt.close()

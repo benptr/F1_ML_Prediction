@@ -19,14 +19,13 @@ def index(request):
     years =[i for i in range(2018,2022)]
     year1 = years[0]
     year2 = years[-1]
-    
 
     context = {
         'titre' : titre,
         'year1' : year1,
         'year2' : year2,
-
     }
+
     return render(request, 'index.html', context)
 
 def Predictions(request):
@@ -111,7 +110,7 @@ def Visualization(request):
     driver1Defined = 'NOR'
     driver2Defined = 'SAI'
 
-    dfAll,races,driversCauses,dictTeamColors = viz.init_viz()
+    #viz.init_viz()
 
     graph = [
         viz.RankingDisplay(viz.RetrieveSession(yearDefined, gpNumberDefined, 'P1')).to_html(full_html = False),
@@ -133,9 +132,9 @@ def Visualization(request):
 
         viz.ConstructorsForm(year1, year2).to_html(full_html = False),
 
-        viz.DriversQualiComparison(yearDefined, gpNumberDefined, driver1Defined, driver2Defined),
+        viz.DriversQualiComparison(),
 
-        viz.RacePaceComparison(yearDefined, gpNumberDefined, driver1Defined, driver2Defined)
+        viz.RacePaceComparison()
     ]
 
     context = {
